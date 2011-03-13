@@ -1,8 +1,8 @@
 var http = require('http')
 	, fs = require('fs')
+	, flushed = false
+	, file_path = __dirname + '/cat.jpg'
 	;
-
-var file_path = __dirname + '/cat.jpg';
 
 fs.stat(file_path, function (err, stat) {
 	
@@ -19,9 +19,23 @@ fs.stat(file_path, function (err, stat) {
 		});
 		
 		var rs = fs.createReadStream(file_path);
+
 		rs.on('data', function (file_content) {
-			res.write(file_content);
+			flushed = res.write(file_content);
+			
+			if (!flushed) {
+				//if the content wasn't sent pause the
+				//read stream
+				rs.pause();
+			}
 		});
+		
+		res.on('drain', function () {
+			//resume the read stream when the data is
+			//sent to the receiver
+			rs.resume();
+		});
+
 		rs.on('end', function () {
 			res.end();
 		})
