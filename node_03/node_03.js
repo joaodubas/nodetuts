@@ -10,6 +10,7 @@ fs.stat(file_path, function (err, stat) {
 		throw err;
 	}
 	
+	
 	http.createServer(function (req, res) {
 		
 		res.writeHead(200, {
@@ -17,10 +18,14 @@ fs.stat(file_path, function (err, stat) {
 			'Content-Length': stat.size 
 		});
 		
-		fs.readFile(file_path, function (err, file_content) {
+		var rs = fs.createReadStream(file_path);
+		rs.on('data', function (file_content) {
 			res.write(file_content);
-			res.end();
 		});
+		rs.on('end', function () {
+			res.end();
+		})
+
 	}).listen(4000);
 });
 
