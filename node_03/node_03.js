@@ -1,5 +1,6 @@
 var http = require('http')
 	, fs = require('fs')
+	, util = require('util')
 	, flushed = false
 	, file_path = __dirname + '/cat.jpg'
 	;
@@ -20,25 +21,11 @@ fs.stat(file_path, function (err, stat) {
 		
 		var rs = fs.createReadStream(file_path);
 
-		rs.on('data', function (file_content) {
-			flushed = res.write(file_content);
-			
-			if (!flushed) {
-				//if the content wasn't sent pause the
-				//read stream
-				rs.pause();
+		util.pump(rs, res, function (rs_err) {
+			if (rs_err) {
+				throw rs_err;
 			}
 		});
-		
-		res.on('drain', function () {
-			//resume the read stream when the data is
-			//sent to the receiver
-			rs.resume();
-		});
-
-		rs.on('end', function () {
-			res.end();
-		})
 
 	}).listen(4000);
 });
