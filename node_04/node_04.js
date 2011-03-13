@@ -1,19 +1,23 @@
 var http = require('http')
 	, fs = require('fs')
+	, step = require('step')
 	, file_path = __dirname + '/cat.jpg'
+	, file_size = 0
+	, file_content = null
 	;
 
-fs.stat(file_path, function (stat_err, stat) {
-	if (stat_err) {
-		throw stat_err;
+step(
+	function getFileSize () {
+		fs.stat(file_path, this);
 	}
-
-	var file_size = stat.size;
-	
-	fs.readFile(file_path, function (read_err, file_content) {
-		if (read_err) {
-			throw read_err;
-		}
+	, function storeFileSize (err, stat) {
+		file_size = stat.size;
+		this();
+	}
+	, function loadFileToMemory () {
+		fs.readFile(file_path, this);
+	}
+	, function createServer (err, file_content) {
 		
 		http.createServer(function (req, res) {
 			
@@ -25,5 +29,6 @@ fs.stat(file_path, function (stat_err, stat) {
 			res.end(file_content);
 			
 		}).listen(4000);
-	});
-});
+
+	}
+);
