@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+
+<html lang='pt-br'>
+	<head>
+		<title>Chat</title>
+		<style>
+body {
+	background: #666;
+	color: #fff;
+	font-family: Helvetica, Arial, Sans-serif;
+	font-size: 14px;
+	margin: 0; padding: 0;
+}
+#log {
+	margin-bottom: 100px;
+	width: 100%;
+}
+#log ul { margin: 0; padding 0;}
+#log ul li { list-style-type: none; }
+#console {
+	background: #000;
+	color: #fff;
+	border-top: 1px solid #fff;
+	font-size: 18px;
+	width: 100%;
+	position: fixed; left: 0; bottom: 0;
+}
+#console input {
+	background: inherit;
+	color: inherit;
+	font-size: inherit;
+	width: 100%;
+}
+		</style>
+	</head>
+	<body>
+		<h1>Chat</h1>
+		<div id='log'>
+			<ul />
+		</div>
+		<div id='console'><input type='text' id='entry' /></div>
+		<script type='text/javascript' charset='UTF-8' src='http://ajax.googleapis.com/ajax/libs/jquery/1.4.3/jquery.min.js'></script>
+	</body>
+</html>
