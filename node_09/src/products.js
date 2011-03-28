@@ -13,38 +13,65 @@ var products = [
     }
 ];
 
+var indexOfProduct = function (id) {
+    var idx = -1
+        , counter = 0
+        , productFound = false
+        , product = null
+        , productQuantity = products.length
+        ;
+    
+    while (!productFound) {
+        if (counter < productQuantity) {
+            product = products[counter];
+
+            if (product.id === id) {
+                idx = counter;
+                productFound = true;
+            }
+        } else {
+            productFound = true;
+        }
+        counter += 1;
+    }
+    
+    return idx;
+};
+
+var idOfProduct = function (id) {
+    if (typeof id !== 'number') {
+        id = parseInt(id, 10);
+    }
+
+    return id;
+};
+
+var lastProductId = function () {
+    return products[(products.length - 1)]['id'];
+}
+
 module.exports.all = products;
 
 module.exports.find = function (id) {
-    var productFound = false
-        , product = null
-        , productQuantity = products.length
-        , idx = 0
+    var product = null
+        , idx = -1
         ;
-    if (typeof id !== 'number') {
-        id = parseInt(id, 10);
-        if (isNaN(id)) {
-            productFound = true;
-            product = {
-                id: 0
-                , name: 'A procura deve ser um numero'
-                , description: 'A procura deve ser um numero'
-                , price: 0
-            };
-        }
-    }
-    
-    while (!productFound) {
-        if (idx < productQuantity) {
+    id = idOfProduct(id);
+
+    if (isNaN(id)) {
+        product = {
+            id: idx
+            , name: 'A procura deve ser um numero'
+            , description: 'A procura deve ser um numero'
+            , price: 0
+        };
+    } else {
+        idx = indexOfProduct(id);
+        if (idx >= 0) {
             product = products[idx];
-            if (product.id === id) {
-                productFound = true;
-            }
-            idx += 1;
         } else {
-            productFound = true;
             product = {
-                id: 0
+                id: idx
                 , name: 'Produto nao encontrado'
                 , description: 'Produto nao encontrado'
                 , price: 0
@@ -53,4 +80,33 @@ module.exports.find = function (id) {
     }
     
     return product;
-}
+};
+
+module.exports.set = function (id, product) {
+    var idx = -1;
+    id = idOfProduct(id);
+    
+    if (!isNaN(id)) {
+        product.id = id;
+        
+        idx = indexOfProduct(id);
+        if (idx >= 0) {
+            products[idx] = product;
+        }
+    }
+};
+
+module.exports.new = function () {
+    return {
+        name: ''
+        , description: ''
+        , price: 0
+    };
+};
+
+module.exports.insert = function (product) {
+    var id = lastProductId() + 1;
+    product.id = id;
+    products.push(product);
+    return id;
+};
