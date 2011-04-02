@@ -1,2 +1,2 @@
-h1 Novo produto
-form(action='/products', method='POST')!= partial('partials/product_form', {locals: {product: product}})
+h2 Novo produto
+form(action='/products', method='POST')!= partial('partials/product_form', {locals: {product: product, photo_list: photo_list}})

@@ -11,4 +11,10 @@ p
 p
   input(type='text', id='product_price', name='product[price]', value=product.price)
 p
+  label(for='product_photo') Foto:
+p
+  select(id='product_photo', name='product[photo]')
+    - each photo in photo_list
+      option(value=photo, selected=(product.photo === photo))= photo
+p
   input(type='submit', value='Salvar')

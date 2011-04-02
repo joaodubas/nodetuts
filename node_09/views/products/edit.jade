@@ -1,4 +1,4 @@
-h1 Editing #{product.name}
+h2 Editing #{product.name}
 form(action='/products/' + product.id, method='POST')
   input(type='hidden', name='_method', value='PUT')
-  div!= partial('partials/product_form', {locals: {product: product}})
+  div!= partial('partials/product_form', {locals: {product: product, photo_list: photo_list}})
