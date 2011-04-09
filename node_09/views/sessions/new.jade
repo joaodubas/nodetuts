@@ -1,0 +1,13 @@
+h2 Login
+form(action='/sessions', method='POST')
+  input(name='redir', type='hidden', value=redir)
+  p
+    label(for='username') Usuário
+  p
+    input(id='username', name='user[username]', type='text')
+  p
+    label(for='password') Senha
+  p
+    input(id='password', name='user[password]', type='password')
+  p
+    input(type='submit', value='Logar')

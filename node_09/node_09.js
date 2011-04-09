@@ -5,6 +5,7 @@ http://groups.google.com/group/express-js/browse_thread/thread/a552d29f7d5fdc81?
 */
 
 var express = require('express')
+    , MemoryStore = require('connect').session.MemoryStore
     , form = require('connect-form')
     ;
 
@@ -19,6 +20,13 @@ app.configure(function () {
     app.use(express.logger());
     app.use(express.bodyParser());
     app.use(express.methodOverride());
+    app.use(express.cookieParser());
+    app.use(express.session({
+        store: new MemoryStore({
+            reapInterval: 6 * Math.pow(10, 5)
+        })
+        , secret: 'eusoueuesocuareca'   
+    }));
     app.use(express.static(__dirname + '/static'));
 });
 
@@ -36,8 +44,39 @@ app.configure('production', function () {
 app.set('views', __dirname + '/views');
 app.set('view engine', 'jade');
 
+function requireLogin(req, res, next) {
+    if (req.session.user) {
+        next();
+    } else {
+        res.redirect('/sessions/new?redir=' + req.url);
+    }
+}
+
 app.get('/', function (req, res) {
     res.render('root');
+});
+
+var users = require('./src/users');
+
+app.get('/sessions/new', function (req, res) {
+    res.render('sessions/new', {
+        locals: {
+            redir: req.query.redir || req.body.redir
+        }
+    }); 
+});
+
+app.post('/sessions', function (req, res) {
+    var redirect = req.body.redir || '/';
+    users.authenticate(req.body.user, function (user) {
+        if (user) {
+            req.session.user = user;
+            res.redirect(redirect);
+        } else {
+            console.log(req.body.redir)
+            res.redirect('/sessions/new?redir=' + redirect);
+        }
+    });
 });
 
 var products = require('./src/products')
@@ -52,7 +91,7 @@ app.get('/products', function (req, res) {
     });
 });
 
-app.get('/products/new', function (req, res) {
+app.get('/products/new', requireLogin, function (req, res) {
     photos.list(function (err, photo_list) {
         if (err) {
             next(err);
@@ -66,7 +105,7 @@ app.get('/products/new', function (req, res) {
     });
 });
 
-app.post('/products', function (req, res) {
+app.post('/products', requireLogin, function (req, res) {
     var id = products.insert(req.body.product);
     res.redirect('/products/' + id);
 });
@@ -80,7 +119,7 @@ app.get('/products/:id', function (req, res) {
     })
 });
 
-app.get('/products/:id/edit', function (req, res) {
+app.get('/products/:id/edit', requireLogin, function (req, res) {
     photos.list(function (err, photo_list) {
         if (err) {
             next(err);
@@ -95,16 +134,16 @@ app.get('/products/:id/edit', function (req, res) {
     });
 });
 
-app.put('/products/:id', function (req, res) {
+app.put('/products/:id', requireLogin, function (req, res) {
     var id = req.params.id;
     products.set(id, req.body.product);
     res.redirect('/products/' + id);
 });
 
-app.get('/photos', function (req, res) {
+app.get('/photos', requireLogin, function (req, res) {
     photos.list(function (err, photo_list) {
         if (err) {
-            next(err);
+            throw err;
         }
 
         res.render('photos/index', {
@@ -115,14 +154,14 @@ app.get('/photos', function (req, res) {
     });
 });
 
-app.get('/photos/new', function (req, res) {
+app.get('/photos/new', requireLogin, function (req, res) {
     res.render('photos/new');
 });
 
 app.post('/photos', function (req, res, next) {
     req.form.complete(function (err, fields, files) {
         if (err) {
-            next(err);
+            throw err;
         } else {
             console.log('uploaded %s to %s', files.photo.filename, files.photo.path);
             res.redirect('/photos');
