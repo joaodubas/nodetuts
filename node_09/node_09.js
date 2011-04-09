@@ -44,6 +44,15 @@ app.configure('production', function () {
 app.set('views', __dirname + '/views');
 app.set('view engine', 'jade');
 
+app.dynamicHelpers({
+    session: function (req, res) {
+        return req.session;
+    }
+    , flash: function (req, res) {
+        return req.flash();
+    }
+});
+
 function requireLogin(req, res, next) {
     if (req.session.user) {
         next();
@@ -61,7 +70,7 @@ var users = require('./src/users');
 app.get('/sessions/new', function (req, res) {
     res.render('sessions/new', {
         locals: {
-            redir: req.query.redir || req.body.redir
+            redir: req.query.redir || '/'
         }
     }); 
 });
@@ -73,10 +82,15 @@ app.post('/sessions', function (req, res) {
             req.session.user = user;
             res.redirect(redirect);
         } else {
-            console.log(req.body.redir)
+            req.flash('warn', 'Opa, tu errou alguma coisa!');
             res.redirect('/sessions/new?redir=' + redirect);
         }
     });
+});
+
+app.get('/sessions/logout', function (req, res) {
+    delete req.session.user;
+    res.redirect('/sessions/new');
 });
 
 var products = require('./src/products')

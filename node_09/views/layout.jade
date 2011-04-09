@@ -4,6 +4,13 @@ html
     link(rel='stylesheet', href='css/global.css')
     title Que que é, nunca me viu?
   body
-    div#main
-      h1 Num me interessa
-      div#container!= body
+    #main
+      #header
+        h1 Num me interessa
+        -if (session.user)
+          #user= 'ola ' + session.user.username
+          #logout
+            a(href='/sessions/logout') sair
+        -if (flash.warn)
+          p#warn= flash.warn
+      #container!= body
